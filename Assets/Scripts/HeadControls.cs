@@ -239,11 +239,8 @@ public class HeadControls : MonoBehaviour
             //IF THAT WAS THE FINAL STRIKE
             if (strikes <= 0)
             {
-                emojiMaterial.color = new Color(1, 1, 1);
                 trueListHolder.GetComponent<TrueListHolder>().beatLevel = false;
-                trueListHolder.GetComponent<TrueListHolder>().score = totalScore;
-                trueListHolder.GetComponent<TrueListHolder>().UpdateScores();
-                SceneManager.LoadScene(0);
+                QuitLevel(false);
                 return;
             }
             StartCoroutine(WrongWay(0, 0));
@@ -281,10 +278,8 @@ public class HeadControls : MonoBehaviour
             if(trueListHolder.GetComponent<TrueListHolder>().trueList.Count == 0)
             {
                 trueListHolder.GetComponent<TrueListHolder>().beatLevel = true;
-                trueListHolder.GetComponent<TrueListHolder>().score = totalScore;
                 trueListHolder.GetComponent<TrueListHolder>().medalScore = medalScore;
-                trueListHolder.GetComponent<TrueListHolder>().UpdateScores();
-                SceneManager.LoadScene(0);
+                QuitLevel(false);
                 return;
             }
             else
@@ -356,4 +351,12 @@ public class HeadControls : MonoBehaviour
         tempEffect.GetComponent<TextMeshPro>().text = text;
     }
 
+    public void QuitLevel(bool backButton)
+    {
+        emojiMaterial.color = new Color(1, 1, 1);
+        trueListHolder.GetComponent<TrueListHolder>().quitLevel = backButton;
+        trueListHolder.GetComponent<TrueListHolder>().score = totalScore;
+        trueListHolder.GetComponent<TrueListHolder>().UpdateScores();
+        SceneManager.LoadScene(0);
+    }
 }

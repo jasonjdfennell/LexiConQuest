@@ -97,22 +97,24 @@ public class HighManager : MonoBehaviour
             trueListHolder.GetComponent<TrueListHolder>().medalsEarned = returningListHolder.GetComponent<TrueListHolder>().medalsEarned;
             ChangeMode(returningListHolder.GetComponent<TrueListHolder>().trueModeInt);
             ChangeDifficulty(returningListHolder.GetComponent<TrueListHolder>().trueDifficulty);
-            //activating either the win screen or lose screen
-            if(returningListHolder.GetComponent<TrueListHolder>().beatLevel == true)
+            //going straight to the main menu if the player quit the level instead of beating it or failing it
+            if(returningListHolder.GetComponent<TrueListHolder>().quitLevel == true)
             {
-                //winScore.GetComponent<TextMeshProUGUI>().text = "Score: " + returningListHolder.GetComponent<TrueListHolder>().score + "\nHigh Score: " + returningListHolder.GetComponent<TrueListHolder>().highScores[returningListHolder.GetComponent<TrueListHolder>().trueModeInt];
-                LevelComplete(returningListHolder.GetComponent<TrueListHolder>().score, returningListHolder.GetComponent<TrueListHolder>().medalScore);
+                MainMenu();
             }
             else
             {
-                //loseScore.GetComponent<TextMeshProUGUI>().text = "Score: " + returningListHolder.GetComponent<TrueListHolder>().score + "\nHigh Score: " + returningListHolder.GetComponent<TrueListHolder>().highScores[returningListHolder.GetComponent<TrueListHolder>().trueModeInt];
-                GameOver(returningListHolder.GetComponent<TrueListHolder>().score);
+                //activating either the win screen or lose screen
+                if (returningListHolder.GetComponent<TrueListHolder>().beatLevel == true)
+                {
+                    LevelComplete(returningListHolder.GetComponent<TrueListHolder>().score, returningListHolder.GetComponent<TrueListHolder>().medalScore);
+                }
+                else
+                {
+                    GameOver(returningListHolder.GetComponent<TrueListHolder>().score);
+                }
             }
             Destroy(returningListHolder);
-        }
-        else
-        {
-            //CALCULATE THE HIGH SCORE THRESHOLDS HERE
         }
 
         //SET UP THE HIGH SCORES AND MEDALS IN THE LEVEL SELECT MENU

@@ -14,6 +14,7 @@ public class TrueListHolder : MonoBehaviour
     public bool firstTime;
     public int trueModeInt;
     public bool beatLevel;
+    public bool quitLevel;
     public int score;
     public int medalScore;
 

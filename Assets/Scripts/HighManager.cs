@@ -199,11 +199,18 @@ public class HighManager : MonoBehaviour
 
     private void LevelComplete(int score, int medalScore)
     {
-        winScore.GetComponent<TextMeshProUGUI>().text = "Score: " + score + 
-            "\nHigh Score: " + trueListHolder.GetComponent<TrueListHolder>().highScores[trueListHolder.GetComponent<TrueListHolder>().trueModeInt];
         if (score > medalScore)
         {
             trueListHolder.GetComponent<TrueListHolder>().medalsEarned[trueListHolder.GetComponent<TrueListHolder>().trueModeInt] = trueListHolder.GetComponent<TrueListHolder>().trueDifficulty;
+            winScore.GetComponent<TextMeshProUGUI>().text = "Score: " + score +
+                "\nHigh Score: " + trueListHolder.GetComponent<TrueListHolder>().highScores[trueListHolder.GetComponent<TrueListHolder>().trueModeInt] +
+                "\nYou Win A Medal!";
+        }
+        else
+        {
+            winScore.GetComponent<TextMeshProUGUI>().text = "Score: " + score +
+                "\nHigh Score: " + trueListHolder.GetComponent<TrueListHolder>().highScores[trueListHolder.GetComponent<TrueListHolder>().trueModeInt] +
+                "\nScore " + (medalScore - score) + " More For A Medal!";
         }
         mainMenu.SetActive(false);
         winScreen.SetActive(true);

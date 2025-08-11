@@ -30,6 +30,8 @@ public class HeadControls : MonoBehaviour
     public GameObject timeBonusUI;
     public GameObject letterStreakUI;
     public GameObject wordStreakUI;
+    public string[] compliments;
+
     private int tempScore;
     //this is only serialized so i can test something
     [SerializeField] private int totalScore;
@@ -44,7 +46,8 @@ public class HeadControls : MonoBehaviour
     private int strikes;
     public List<GameObject> strikeUI = new List<GameObject>();
 
-    public GameObject scoreEffect;
+    public GameObject gameplayEffect;
+    public GameObject UIEffect;
     public GameObject stopwatchHand;
 
     void Awake()
@@ -161,7 +164,7 @@ public class HeadControls : MonoBehaviour
         {
             int tempDiff = Mathf.FloorToInt(Mathf.Log10(totalScore - tempScore));
             tempScore = tempScore + Mathf.FloorToInt(Mathf.Pow(5, tempDiff));
-            scoreUI.GetComponent<TextMeshProUGUI>().text = "Score: " + tempScore;
+            scoreUI.GetComponent<TextMeshProUGUI>().text = "Score:\n" + tempScore;
         }
         //BREAK
     }
@@ -187,17 +190,14 @@ public class HeadControls : MonoBehaviour
         //IF THE CORRECT LETTER WAS CHOSEN
         if (transform.eulerAngles.z - direction == 90 * randomChild || transform.eulerAngles.z - direction == -270 * randomChild)
         {
-            //this if statement should be temporary
-            if (gameModeInt > 1)
-            {
-                progressUI.GetComponent<TextMeshProUGUI>().text = progressUI.GetComponent<TextMeshProUGUI>().text + currentWord[currentLetter].ToString();
-            }
+            progressUI.GetComponent<TextMeshProUGUI>().text = progressUI.GetComponent<TextMeshProUGUI>().text + currentWord[currentLetter].ToString();
             currentLetter = currentLetter + 1;
             sfxPlayer.clip = correctSFX;
             sfxPlayer.Play();
             //INCREASE THE SCORE
             int timeBonus = Mathf.RoundToInt((stopwatchHand.transform.eulerAngles.z / 36) * Mathf.Pow(10, difficulty));
-            int medalBonus = Mathf.RoundToInt((240 / 36) * Mathf.Pow(10, difficulty));
+            int medalTime = 135 + (45 * difficulty);
+            int medalBonus = Mathf.RoundToInt((medalTime / 36) * Mathf.Pow(10, difficulty));
             if (wordStreak > 0)
             {
                 totalScore = totalScore + letterStreak + (timeBonus * wordStreak);
@@ -211,19 +211,12 @@ public class HeadControls : MonoBehaviour
             //INCREASE THE LETTER STREAK
             letterStreak = letterStreak + 1;
             medalLetterStreak = medalLetterStreak + 1;
-            letterStreakUI.GetComponent<TextMeshProUGUI>().text = "Letter Streak: " + letterStreak;
+            //letterStreakUI.GetComponent<TextMeshProUGUI>().text = "Letter Streak: " + letterStreak;
             //INSTANTIATE AN EFFECT
-            NewEffect(new Vector2(transform.position.x + 3f, transform.position.y), 0, new Vector2(1, 1), "+" + timeBonus);
-            /*GameObject tempEffect = Instantiate(scoreEffect);
-            tempEffect.SetActive(true);
-            tempEffect.transform.position = new Vector2(transform.position.x + 3f, transform.position.y);
-            tempEffect.GetComponent<TextMeshPro>().text = ;*/
-            //DIAGONAL
-            GameObject tempEffectTwo = Instantiate(scoreEffect);
-            tempEffectTwo.SetActive(true);
-            tempEffectTwo.transform.position = transform.position;
-            tempEffectTwo.transform.localEulerAngles = new Vector3(0, 0, direction + Random.Range(-45, 45));
-            tempEffectTwo.GetComponent<TextMeshPro>().text = "Amazing!";
+            //NewEffect(UIEffect, new Vector2(transform.position.x + 3f, transform.position.y), 0, new Vector2(1, 1), "+" + timeBonus);
+            NewEffect(true, stopwatchHand.transform.position, 0, new Vector2(1, 1), "Time Bonus: +" + timeBonus);
+            //DIAGONAL COMPLIMENT
+            NewEffect(false, transform.position, direction + Random.Range(-45, 45), new Vector2(1, 1), compliments[Random.Range(0, compliments.Length)]);
         }
         //IF THE WRONG LETTER WAS CHOSEN
         else
@@ -341,14 +334,25 @@ public class HeadControls : MonoBehaviour
         spriteRenderer.sprite = trueListHolder.GetComponent<TrueListHolder>().trueSprites[Random.Range(0, 3)];
     }
 
-    private void NewEffect(Vector2 effectPosition, int effectDirection, Vector2 effectScale, string text)
+    private void NewEffect(bool UI, Vector2 effectPosition, int effectDirection, Vector2 effectScale, string text)
     {
-        GameObject tempEffect = Instantiate(scoreEffect);
+        GameObject tempEffect;
+        if(UI == true)
+        {
+            tempEffect = Instantiate(UIEffect);
+            tempEffect.GetComponent<TextMeshProUGUI>().text = text;
+            //setting the canvas as the parent so that the UI effect shows up
+            tempEffect.transform.SetParent(UIEffect.transform.parent, false);
+        }
+        else
+        {
+            tempEffect = Instantiate(gameplayEffect);
+            tempEffect.GetComponent<TextMeshPro>().text = text;
+        }
         tempEffect.SetActive(true);
         tempEffect.transform.position = effectPosition;
         tempEffect.transform.localEulerAngles = new Vector3(0, 0, effectDirection);
         tempEffect.transform.localScale = effectScale;
-        tempEffect.GetComponent<TextMeshPro>().text = text;
     }
 
     public void QuitLevel(bool backButton)

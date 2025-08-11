@@ -16,6 +16,7 @@ public class HighManager : MonoBehaviour
     public GameObject levelMenu;
     public GameObject difficultyMenu;
     public GameObject winScreen;
+    public GameObject winScreenMedal;
     public GameObject loseScreen;
     public List<GameObject> levelButtons;
     public List<Sprite> medalSprites;
@@ -26,7 +27,11 @@ public class HighManager : MonoBehaviour
     public List<string> modeNames = new List<string>();
     public List<string> difficultyOptions = new List<string>();
 
-    public AudioSource sfxPlayer;
+    [SerializeField] private AudioSource musicPlayer;
+    [SerializeField] private AudioSource sfxPlayer;
+    [SerializeField] private AudioClip titleOST;
+    [SerializeField] private AudioClip victoryOST;
+    [SerializeField] private AudioClip failureOST;
 
     //I don't know if there's a way to do this where the size of the array is dependent on the number of modes in modeNames. Maybe it'd be better to have a List of Lists instead of an Array of Lists.
     public List<string>[] vocabListsArray = new List<string>[0];
@@ -100,6 +105,7 @@ public class HighManager : MonoBehaviour
             //going straight to the main menu if the player quit the level instead of beating it or failing it
             if(returningListHolder.GetComponent<TrueListHolder>().quitLevel == true)
             {
+                
                 MainMenu();
             }
             else
@@ -116,7 +122,12 @@ public class HighManager : MonoBehaviour
             }
             Destroy(returningListHolder);
         }
-
+        //FIRST TIME THE GAME IS OPENED
+        else
+        {
+            MainMenu();
+        }
+        musicPlayer.Play();
         //SET UP THE HIGH SCORES AND MEDALS IN THE LEVEL SELECT MENU
         List<int> highScores = trueListHolder.GetComponent<TrueListHolder>().highScores;
         List<int> medalsEarned = trueListHolder.GetComponent<TrueListHolder>().medalsEarned;
@@ -175,7 +186,12 @@ public class HighManager : MonoBehaviour
         winScreen.SetActive(false);
         loseScreen.SetActive(false);
         mainMenu.SetActive(true);
-        sfxPlayer.Play();
+        sfxPlayer.Play(); 
+        if(musicPlayer.clip != titleOST)
+        {
+            musicPlayer.clip = titleOST;
+            musicPlayer.Play();
+        }
     }
 
     public void LevelSelect()
@@ -201,7 +217,11 @@ public class HighManager : MonoBehaviour
     {
         if (score > medalScore)
         {
-            trueListHolder.GetComponent<TrueListHolder>().medalsEarned[trueListHolder.GetComponent<TrueListHolder>().trueModeInt] = trueListHolder.GetComponent<TrueListHolder>().trueDifficulty;
+            //updating medal array
+            if(trueListHolder.GetComponent<TrueListHolder>().medalsEarned[trueListHolder.GetComponent<TrueListHolder>().trueModeInt] < trueListHolder.GetComponent<TrueListHolder>().trueDifficulty)
+            {
+                trueListHolder.GetComponent<TrueListHolder>().medalsEarned[trueListHolder.GetComponent<TrueListHolder>().trueModeInt] = trueListHolder.GetComponent<TrueListHolder>().trueDifficulty;
+            }
             winScore.GetComponent<TextMeshProUGUI>().text = "Score: " + score +
                 "\nHigh Score: " + trueListHolder.GetComponent<TrueListHolder>().highScores[trueListHolder.GetComponent<TrueListHolder>().trueModeInt] +
                 "\nYou Win A Medal!";
@@ -212,9 +232,11 @@ public class HighManager : MonoBehaviour
                 "\nHigh Score: " + trueListHolder.GetComponent<TrueListHolder>().highScores[trueListHolder.GetComponent<TrueListHolder>().trueModeInt] +
                 "\nScore " + (medalScore - score) + " More For A Medal!";
         }
+        //updating the medal sprite
+        winScreenMedal.GetComponent<Image>().sprite = medalSprites[trueListHolder.GetComponent<TrueListHolder>().trueDifficulty];
         mainMenu.SetActive(false);
         winScreen.SetActive(true);
-        sfxPlayer.Play();
+        musicPlayer.clip = victoryOST;
     }
 
     private void GameOver(int score)
@@ -223,6 +245,7 @@ public class HighManager : MonoBehaviour
             "\nHigh Score: " + trueListHolder.GetComponent<TrueListHolder>().highScores[trueListHolder.GetComponent<TrueListHolder>().trueModeInt];
         mainMenu.SetActive(false);
         loseScreen.SetActive(true);
+        musicPlayer.clip = failureOST;
     }
 
     public void QuitGame()

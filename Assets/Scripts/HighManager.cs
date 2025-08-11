@@ -61,11 +61,14 @@ public class HighManager : MonoBehaviour
     public List<string> clothingEmojis = new List<string>();
     public List<string> instrumentList = new List<string>();
     public List<string> instrumentEmojis = new List<string>();
+    public List<string> objectList = new List<string>();
+    public List<string> objectEmojis = new List<string>();
 
     void Start()
     {
         DontDestroyOnLoad(trueListHolder);
         //This automatically changes the size of the array. It's just one less thing that I have to change manually but unfortunately it's still not a fully automatic process.
+        //REMEMBER TO INCREASE THE SIZE OF FIRSTLISTHOLDER'S HIGH SCORES AND MEDALS EARNED LISTS
         vocabListsArray = new List<string>[modeNames.Count];
         vocabEmojisArray = new List<string>[modeNames.Count];
         vocabListsArray[0] = alphabetList;
@@ -78,6 +81,7 @@ public class HighManager : MonoBehaviour
         vocabListsArray[7] = sportList;
         vocabListsArray[8] = clothingList;
         vocabListsArray[9] = instrumentList;
+        vocabListsArray[10] = objectList;
         vocabEmojisArray[0] = alphabetEmojis;
         vocabEmojisArray[1] = backwardsAlphabetEmojis;
         vocabEmojisArray[2] = animalEmojis;
@@ -88,6 +92,7 @@ public class HighManager : MonoBehaviour
         vocabEmojisArray[7] = sportEmojis;
         vocabEmojisArray[8] = clothingEmojis;
         vocabEmojisArray[9] = instrumentEmojis;
+        vocabEmojisArray[10] = objectEmojis;
         SpritesArray[0] = alphabetSprites;
         SpritesArray[1] = backwardsAlphabetSprites;
         //REMEMBER TO ADD ONE TO THE HIGH SCORE LIST IN TRUELISTHOLDER.

@@ -8,61 +8,62 @@ using TMPro;
 public class HeadControls : MonoBehaviour
 {
     public GameObject trueListHolder;
-    public GameObject progressUI;
-    private AudioSource sfxPlayer;
-    public SpriteRenderer spriteRenderer;
+    public int gameModeInt;
+    public int difficulty;
+
+    [SerializeField] private AudioSource sfxPlayer;
+    [SerializeField] private AudioSource voicePlayer;
+    [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private Material emojiMaterial;
 
     [SerializeField] private AudioClip correctSFX;
     [SerializeField] private AudioClip incorrectSFX;
-
-    [SerializeField] private float stepLength;
-    public int gameModeInt;
+    
     private int currentLetter;
     private string currentWord;
-
     private int randomChild;
-    private List<Vector3> trailPositions = new List<Vector3>();
-    public List<Quaternion> trailRotations = new List<Quaternion>();
 
-    public int difficulty;
+    [SerializeField] private float stepLength;
+    private List<Vector3> trailPositions = new List<Vector3>();
+    private List<Quaternion> trailRotations = new List<Quaternion>();
+
+    public GameObject progressUI;
     public GameObject scoreUI;
-    public GameObject timeBonusUI;
     public GameObject letterStreakUI;
     public GameObject wordStreakUI;
-    public string[] compliments;
-
-    private int tempScore;
-    //this is only serialized so i can test something
-    [SerializeField] private int totalScore;
-    private int medalLetterStreak;
-    private int medalWordStreak;
-    public int medalScore;
-    //private float timeBonus;
-    private float decreaseRate;
-    private int letterStreak;
-    private int wordStreak;
-    private bool wordStreakMaintained;
-    private int strikes;
     public List<GameObject> strikeUI = new List<GameObject>();
 
     public GameObject gameplayEffect;
     public GameObject UIEffect;
     public GameObject stopwatchHand;
+    [SerializeField] private string[] compliments;
 
+    private int tempScore;
+    private int totalScore;
+    private int medalLetterStreak;
+    private int medalWordStreak;
+    private int medalScore;
+    private int letterStreak;
+    private int wordStreak;
+    private bool wordStreakMaintained;
+    private int strikes;
+    
     void Awake()
     {
         trueListHolder = GameObject.Find("TrueListHolder");
-        //logging the game mode for future reference (do I need future reference? Not sure yet)
+        //logging the game mode for future reference
         gameModeInt = trueListHolder.GetComponent<TrueListHolder>().trueModeInt;
         difficulty = trueListHolder.GetComponent<TrueListHolder>().trueDifficulty;
         stopwatchHand.GetComponent<StopwatchHand>().difficulty = difficulty;
+        //setting up the strikes system
+        for (int x = 3; x > 4 - difficulty; x--)
+        {
+            strikeUI[x-1].SetActive(false);
+        }
     }
 
     void Start()
     {
-        sfxPlayer = GetComponent<AudioSource>();
-        
         //not sure if there's a way to do this but right now I just set in manually for simplicity's sake
         //emojiMaterial = GetComponent<TextMeshPro>().material;
 
@@ -74,29 +75,19 @@ public class HeadControls : MonoBehaviour
         }
 
         //Setting up the sprites for the alphabet levels
+        spriteRenderer = transform.GetChild(6).GetComponent<SpriteRenderer>();
         if (gameModeInt < 2)
         {
-            transform.GetChild(6).gameObject.SetActive(true);
-            //I might need to move this next line out of the if statement (above it). I just have it in here cuz I think it's more efficient.
-            spriteRenderer = transform.GetChild(6).GetComponent<SpriteRenderer>();
+            spriteRenderer.sprite = trueListHolder.GetComponent<TrueListHolder>().trueSprites[Random.Range(0, 3)];
+            transform.GetChild(6).gameObject.SetActive(true);            
             GetComponent<TextMeshPro>().enabled = false;
         }
-
-        //setting up the strikes system
-        for (int x = 3; x > 4-difficulty; x--)
-        {
-            Destroy(strikeUI[x - 1]);
-            strikeUI.RemoveAt(x - 1);
-        }
-        strikes = strikeUI.Count;
-        //timeBonus = Mathf.Pow(10, difficulty + 1);
-        decreaseRate = (0.25f * Mathf.Pow(difficulty, 2)) + (-1.45f * difficulty) + 2.2f;
+        strikes = 4-difficulty;
         letterStreak = 0;
         wordStreak = 0;
         wordStreakMaintained = false;
-        //timeBonusUI.GetComponent<TextMeshProUGUI>().text = "Time Bonus: " + timeBonus;
-        letterStreakUI.GetComponent<TextMeshProUGUI>().text = "Letter Streak: " + letterStreak;
-        wordStreakUI.GetComponent<TextMeshProUGUI>().text = "Word Streak: " + wordStreak;
+        //letterStreakUI.GetComponent<TextMeshProUGUI>().text = "Letter Streak: " + letterStreak;
+        //wordStreakUI.GetComponent<TextMeshProUGUI>().text = "Word Streak: " + wordStreak;
         scoreUI.GetComponent<TextMeshProUGUI>().text = "Score: " + totalScore;
         //choosing the word and the sprite to go with it
         NewVocab();
@@ -113,10 +104,10 @@ public class HeadControls : MonoBehaviour
         //resetting the word streak
         wordStreakMaintained = true;
         //resetting the strikes
-        strikes = strikeUI.Count;
-        foreach (GameObject strikeX in strikeUI)
+        strikes = 4 - difficulty;
+        for (int x = 0; x < 4 - difficulty; x++)
         {
-            strikeX.SetActive(true);
+            strikeUI[x].SetActive(true);
         }
         currentLetter = 0;
         progressUI.GetComponent<TextMeshProUGUI>().text = "";
@@ -126,8 +117,8 @@ public class HeadControls : MonoBehaviour
         //THIS IS TO TEST OUT THE VOICE ACTING SYSTEM - RIGHT NOW IT ONLY WORKS WITH THE ANIMAL LEVEL
         if(gameModeInt == 2)
         {
-            sfxPlayer.clip = trueListHolder.GetComponent<TrueListHolder>().trueVA[randomVocab];
-            sfxPlayer.Play();
+            voicePlayer.clip = trueListHolder.GetComponent<TrueListHolder>().trueVA[randomVocab];
+            voicePlayer.Play();
             trueListHolder.GetComponent<TrueListHolder>().trueVA.RemoveAt(randomVocab);
         }
         //removing that item from the list
@@ -140,22 +131,18 @@ public class HeadControls : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.LeftArrow) == true || Input.GetKeyDown(KeyCode.A) == true)
         {
-            //transform.position = transform.position + new Vector3(-stepLength, 0, 0);
             ArrowPressed(-1, 0, 90);
         }
         if (Input.GetKeyDown(KeyCode.RightArrow) == true || Input.GetKeyDown(KeyCode.D) == true)
         {
-            //transform.position = transform.position + new Vector3(stepLength, 0, 0);
             ArrowPressed(1, 0, 270);
         }
         if (Input.GetKeyDown(KeyCode.UpArrow) == true || Input.GetKeyDown(KeyCode.W) == true)
         {
-            //transform.position = transform.position + new Vector3(0, stepLength, 0);
             ArrowPressed(0, 1, 0);
         }
         if (Input.GetKeyDown(KeyCode.DownArrow) == true || Input.GetKeyDown(KeyCode.S) == true)
         {
-            //transform.position = transform.position + new Vector3(0, -stepLength, 0);
             ArrowPressed(0, -1, 180);
         }
 
@@ -166,7 +153,6 @@ public class HeadControls : MonoBehaviour
             tempScore = tempScore + Mathf.FloorToInt(Mathf.Pow(5, tempDiff));
             scoreUI.GetComponent<TextMeshProUGUI>().text = "Score:\n" + tempScore;
         }
-        //BREAK
     }
 
     void ArrowPressed(int xMove, int yMove, int direction)
@@ -176,7 +162,10 @@ public class HeadControls : MonoBehaviour
         //Checking if the player tried to go back the way they came.
         if (Mathf.Abs(transform.eulerAngles.z - direction) == 180)
         {
-
+            if (gameModeInt < 2)
+            {
+                spriteRenderer.sprite = trueListHolder.GetComponent<TrueListHolder>().trueSprites[4];
+            }
             StartCoroutine(WrongWay(xMove, yMove));
             return;
         }
@@ -185,6 +174,7 @@ public class HeadControls : MonoBehaviour
         {
             StopCoroutine(WrongWay(xMove, yMove));
             emojiMaterial.color = new Color(1, 1, 1);
+            spriteRenderer.color = new Color(1, 1, 1);
             transform.position = transform.position + new Vector3(xMove * stepLength, yMove * stepLength, 0);
         }
         //IF THE CORRECT LETTER WAS CHOSEN
@@ -194,6 +184,13 @@ public class HeadControls : MonoBehaviour
             currentLetter = currentLetter + 1;
             sfxPlayer.clip = correctSFX;
             sfxPlayer.Play();
+
+            //CHANGING THE SPRITE FOR THE ALPHABET LEVELS
+            if (gameModeInt < 2)
+            {
+                spriteRenderer.sprite = trueListHolder.GetComponent<TrueListHolder>().trueSprites[Random.Range(0, 3)];
+            }
+
             //INCREASE THE SCORE
             int timeBonus = Mathf.RoundToInt((stopwatchHand.transform.eulerAngles.z / 36) * Mathf.Pow(10, difficulty));
             int medalTime = 135 + (45 * difficulty);
@@ -212,15 +209,30 @@ public class HeadControls : MonoBehaviour
             letterStreak = letterStreak + 1;
             medalLetterStreak = medalLetterStreak + 1;
             //letterStreakUI.GetComponent<TextMeshProUGUI>().text = "Letter Streak: " + letterStreak;
-            //INSTANTIATE AN EFFECT
-            //NewEffect(UIEffect, new Vector2(transform.position.x + 3f, transform.position.y), 0, new Vector2(1, 1), "+" + timeBonus);
-            NewEffect(true, stopwatchHand.transform.position, 0, new Vector2(1, 1), "Time Bonus: +" + timeBonus);
-            //DIAGONAL COMPLIMENT
-            NewEffect(false, transform.position, direction + Random.Range(-45, 45), new Vector2(1, 1), compliments[Random.Range(0, compliments.Length)]);
+
+            //TIME BONUS EFFECT
+            NewEffect(true, new Vector2(stopwatchHand.transform.position.x + 100, stopwatchHand.transform.position.y), 0, new Vector2(1, 1), "Time Bonus +" + timeBonus);
+            //LETTER STREAK EFFECT
+            NewEffect(true, new Vector2(890, 17), 0, new Vector2(0.5f, 0.5f), "Letter Streak: " + letterStreak);
+            //DIAGONAL COMPLIMENT EFFECT
+            if (gameModeInt == 0)
+            {
+                NewEffect(false, transform.position, direction + Random.Range(-45, 45), new Vector2(1, 1), compliments[currentLetter-1]);
+            }
+            else
+            {
+                NewEffect(false, transform.position, direction + Random.Range(-45, 45), new Vector2(1, 1), compliments[Random.Range(0, compliments.Length)]);
+            }
         }
         //IF THE WRONG LETTER WAS CHOSEN
         else
         {
+            //CHANGING THE SPRITE FOR THE ALPHABET LEVELS
+            if (gameModeInt < 2)
+            {
+                spriteRenderer.sprite = trueListHolder.GetComponent<TrueListHolder>().trueSprites[4];
+            }
+
             //REMOVE A STRIKE AND RESET THE LETTER STREAK & WORD STREAK
             strikeUI[strikes-1].SetActive(false);
             letterStreak = 0;
@@ -313,11 +325,6 @@ public class HeadControls : MonoBehaviour
         //changing one of the letters again to be the correct one. The Random.Range is effectively (0,3) for choosing a child, but it's (-1,2) to check for direction later.
         randomChild = Random.Range(-1, 2);
         transform.GetChild(randomChild+1).GetComponent<TextMeshPro>().text = correctLetterString;
-        //CHANGING THE SPRITE FOR THE ALPHABET LEVELS
-        if (gameModeInt < 2)
-        {
-            spriteRenderer.sprite = trueListHolder.GetComponent<TrueListHolder>().trueSprites[Random.Range(0, 3)];
-        }
     }
 
     private IEnumerator WrongWay(int xMove, int yMove)
@@ -325,13 +332,14 @@ public class HeadControls : MonoBehaviour
         sfxPlayer.clip = incorrectSFX;
         sfxPlayer.Play();
         emojiMaterial.color = new Color(1, 0, 0);
+        spriteRenderer.color = new Color(1, 0, 0);
         transform.position = transform.position - new Vector3(xMove * -stepLength * 0.25f, yMove * -stepLength * 0.25f, 0);
 
         yield return new WaitForSeconds(0.25f);
 
         emojiMaterial.color = new Color(1, 1, 1);
+        spriteRenderer.color = new Color(1, 1, 1);
         transform.position = transform.position + new Vector3(xMove * -stepLength * 0.25f, yMove * -stepLength * 0.25f, 0);
-        spriteRenderer.sprite = trueListHolder.GetComponent<TrueListHolder>().trueSprites[Random.Range(0, 3)];
     }
 
     private void NewEffect(bool UI, Vector2 effectPosition, int effectDirection, Vector2 effectScale, string text)

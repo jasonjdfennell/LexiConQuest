@@ -85,6 +85,7 @@ public class HeadControls : MonoBehaviour
         strikes = 4-difficulty;
         letterStreak = 0;
         wordStreak = 0;
+        medalWordStreak = -1;
         wordStreakMaintained = false;
         //letterStreakUI.GetComponent<TextMeshProUGUI>().text = "Letter Streak: " + letterStreak;
         //wordStreakUI.GetComponent<TextMeshProUGUI>().text = "Word Streak: " + wordStreak;
@@ -193,18 +194,12 @@ public class HeadControls : MonoBehaviour
 
             //INCREASE THE SCORE
             int timeBonus = Mathf.RoundToInt((stopwatchHand.transform.eulerAngles.z / 36) * Mathf.Pow(10, difficulty));
+            int letterStreakBonus = letterStreak * Mathf.RoundToInt(Mathf.Pow(10, difficulty-1));
             int medalTime = 135 + (45 * difficulty);
             int medalBonus = Mathf.RoundToInt((medalTime / 36) * Mathf.Pow(10, difficulty));
-            if (wordStreak > 0)
-            {
-                totalScore = totalScore + letterStreak + (timeBonus * wordStreak);
-                medalScore = medalScore + medalLetterStreak + (medalBonus * medalWordStreak);
-            }
-            else
-            {
-                totalScore = totalScore + letterStreak + Mathf.RoundToInt(timeBonus);
-                medalScore = medalScore + medalLetterStreak + Mathf.RoundToInt(medalBonus);
-            }
+            int medalLetterStreakBonus = medalLetterStreak * Mathf.RoundToInt(Mathf.Pow(10, difficulty - 1));
+            totalScore = totalScore + timeBonus + letterStreakBonus;
+            medalScore = medalScore + medalBonus + medalLetterStreakBonus;
             //INCREASE THE LETTER STREAK
             letterStreak = letterStreak + 1;
             medalLetterStreak = medalLetterStreak + 1;
@@ -288,7 +283,10 @@ public class HeadControls : MonoBehaviour
                 return;
             }
             else
-            {
+            {   
+                //ADDING WORD STREAK BONUS
+                totalScore = totalScore + Mathf.RoundToInt(wordStreak * Mathf.Pow(10, difficulty + 1));
+                medalScore = medalScore + Mathf.RoundToInt(medalWordStreak * Mathf.Pow(10, difficulty + 1));
                 NewVocab();
                 return;
             }

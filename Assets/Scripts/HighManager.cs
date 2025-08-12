@@ -32,6 +32,8 @@ public class HighManager : MonoBehaviour
     [SerializeField] private AudioClip titleOST;
     [SerializeField] private AudioClip victoryOST;
     [SerializeField] private AudioClip failureOST;
+    //[SerializeField] private AudioClip[] titleVoices;
+    //[SerializeField] private AudioClip menuSFX;
 
     //I don't know if there's a way to do this where the size of the array is dependent on the number of modes in modeNames. Maybe it'd be better to have a List of Lists instead of an Array of Lists.
     public List<string>[] vocabListsArray = new List<string>[0];
@@ -130,6 +132,7 @@ public class HighManager : MonoBehaviour
         //FIRST TIME THE GAME IS OPENED
         else
         {
+            //sfxPlayer.clip = titleVoices[Random.Range(0, titleVoices.Length)];
             MainMenu();
         }
         musicPlayer.Play();

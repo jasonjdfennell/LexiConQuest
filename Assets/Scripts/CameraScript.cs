@@ -20,29 +20,18 @@ public class CameraScript : MonoBehaviour
     [SerializeField] private List<int> colorOffset = new List<int>();
     //[SerializeField] private Vector3[] colorVector;
 
+    public GameObject backgroundShape;
+    public Sprite[] shapeSprites;
+
     void Start()
     {
         gameCamera = GetComponent<Camera>();
         InvokeRepeating("AdjustSpeed", 0.3f, 0.3f);
-        /*for (int a = 0; a < hudParts.Count; a++)
-        {
-            if(hudParts[a] == null)
-            {
-                Debug.Log(hudParts[a]);
-                hudParts.RemoveAt(a);
-                colorOffset.RemoveAt(a);
-            }
-        }*/
-        //hudParts.RemoveAll(null);
-        if (hudParts[hudParts.Count-1] == null)
-        {
-            Debug.Log("woah");
-        }
+        //InvokeRepeating("SpawnShape", 0f, 5f);
     }
 
     void Update()
     {
-        //Debug.Log(hudParts[hudParts.Count-1]);
         //moving the camera
         if (tracking == true)
         {
@@ -83,6 +72,13 @@ public class CameraScript : MonoBehaviour
         {
             hue = hue + (10 * Time.deltaTime);
         }
+    }
+
+    void SpawnShape()
+    {
+        GameObject tempShape = Instantiate(backgroundShape);
+        tempShape.SetActive(true);
+        tempShape.GetComponent<SpriteRenderer>().sprite = shapeSprites[Random.Range(0,shapeSprites.Length)];
     }
 
     void AdjustSpeed()

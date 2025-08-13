@@ -210,9 +210,9 @@ public class HeadControls : MonoBehaviour
             //LETTER STREAK EFFECT
             NewEffect(true, new Vector2(890, 17), 0, new Vector2(0.5f, 0.5f), "Letter Streak: " + letterStreak);
             //DIAGONAL COMPLIMENT EFFECT
-            if (gameModeInt == 0)
+            if (gameModeInt < 2)
             {
-                NewEffect(false, transform.position, direction + Random.Range(-45, 45), new Vector2(1, 1), compliments[currentLetter-1]);
+                NewEffect(false, transform.position, direction + Random.Range(-45, 45), new Vector2(1, 1), compliments[currentLetter-1 + (gameModeInt*26)]);
             }
             else
             {

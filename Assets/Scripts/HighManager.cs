@@ -15,6 +15,7 @@ public class HighManager : MonoBehaviour
     public GameObject mainMenu;
     public GameObject levelMenu;
     public GameObject difficultyMenu;
+    public GameObject creditsScreen;
     public GameObject winScreen;
     public GameObject winScreenMedal;
     public GameObject loseScreen;
@@ -29,22 +30,24 @@ public class HighManager : MonoBehaviour
 
     [SerializeField] private AudioSource musicPlayer;
     [SerializeField] private AudioSource sfxPlayer;
+    [SerializeField] private AudioSource voicePlayer;
     [SerializeField] private AudioClip titleOST;
     [SerializeField] private AudioClip victoryOST;
     [SerializeField] private AudioClip failureOST;
-    //[SerializeField] private AudioClip[] titleVoices;
-    //[SerializeField] private AudioClip menuSFX;
+    [SerializeField] private AudioClip[] titleVoices;
 
-    //I don't know if there's a way to do this where the size of the array is dependent on the number of modes in modeNames. Maybe it'd be better to have a List of Lists instead of an Array of Lists.
     public List<string>[] vocabListsArray = new List<string>[0];
     public List<string>[] vocabEmojisArray = new List<string>[0];
+    public List<AudioClip>[] voiceClipArray = new List<AudioClip>[0];
     public List<Sprite>[] SpritesArray = new List<Sprite>[2];
 
     public List<string> alphabetList = new List<string>();
     public List<string> alphabetEmojis = new List<string>();
+    public List<AudioClip> alphabetVA = new List<AudioClip>();
     public List<Sprite> alphabetSprites = new List<Sprite>();
     public List<string> backwardsAlphabetList = new List<string>();
     public List<string> backwardsAlphabetEmojis = new List<string>();
+    public List<AudioClip> backwardsVA = new List<AudioClip>();
     public List<Sprite> backwardsAlphabetSprites = new List<Sprite>();
     public List<string> animalList = new List<string>();
     public List<string> animalEmojis = new List<string>();
@@ -73,6 +76,7 @@ public class HighManager : MonoBehaviour
         //REMEMBER TO INCREASE THE SIZE OF FIRSTLISTHOLDER'S HIGH SCORES AND MEDALS EARNED LISTS
         vocabListsArray = new List<string>[modeNames.Count];
         vocabEmojisArray = new List<string>[modeNames.Count];
+        voiceClipArray = new List<AudioClip>[modeNames.Count];
         vocabListsArray[0] = alphabetList;
         vocabListsArray[1] = backwardsAlphabetList;
         vocabListsArray[2] = animalList;
@@ -95,6 +99,9 @@ public class HighManager : MonoBehaviour
         vocabEmojisArray[8] = clothingEmojis;
         vocabEmojisArray[9] = instrumentEmojis;
         vocabEmojisArray[10] = objectEmojis;
+        voiceClipArray[0] = alphabetVA;
+        voiceClipArray[1] = backwardsVA;
+        voiceClipArray[2] = animalVA;
         SpritesArray[0] = alphabetSprites;
         SpritesArray[1] = backwardsAlphabetSprites;
         //REMEMBER TO ADD ONE TO THE HIGH SCORE LIST IN TRUELISTHOLDER.
@@ -132,7 +139,8 @@ public class HighManager : MonoBehaviour
         //FIRST TIME THE GAME IS OPENED
         else
         {
-            //sfxPlayer.clip = titleVoices[Random.Range(0, titleVoices.Length)];
+            voicePlayer.clip = titleVoices[Random.Range(0, titleVoices.Length)];
+            voicePlayer.Play();
             MainMenu();
         }
         musicPlayer.Play();
@@ -191,10 +199,11 @@ public class HighManager : MonoBehaviour
     {
         levelMenu.SetActive(false);
         difficultyMenu.SetActive(false);
+        creditsScreen.SetActive(false);
         winScreen.SetActive(false);
         loseScreen.SetActive(false);
         mainMenu.SetActive(true);
-        sfxPlayer.Play(); 
+        sfxPlayer.Play();
         if(musicPlayer.clip != titleOST)
         {
             musicPlayer.clip = titleOST;
@@ -218,6 +227,13 @@ public class HighManager : MonoBehaviour
     {
         mainMenu.SetActive(false);
         difficultyMenu.SetActive(true);
+        sfxPlayer.Play();
+    }
+
+    public void CreditsScreen()
+    {
+        mainMenu.SetActive(false);
+        creditsScreen.SetActive(true);
         sfxPlayer.Play();
     }
 

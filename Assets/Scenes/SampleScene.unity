@@ -3012,11 +3012,37 @@ MonoBehaviour:
   - Super!
   - Terrific!
   - Unbelievable!
-  - Vivacious!
+  - Victorious!
   - Wonderful!
   - Xenial!
   - Yes!
   - Zany!
+  - Zing!
+  - Yummy!
+  - eXquisite!
+  - Woah!
+  - Valedictory!
+  - Unrivaled!
+  - Totally!
+  - Sick!
+  - Radical!
+  - Quality!
+  - Power Move!
+  - Oh Yeah!
+  - No Way!
+  - Mega Millions!
+  - Love It!
+  - Knockout!
+  - Jackpot!
+  - Insanity!
+  - Huzzah!
+  - Genius!
+  - Fabulous!
+  - Easy!
+  - Dynamite!
+  - Chill!
+  - Bodacious!
+  - Awesome!
 --- !u!224 &1882296087
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3953,7 +3979,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1123930169616690335, guid: 24ea24b7cadf02f42849dab7c20b207b, type: 3}
       propertyPath: m_Layer
-      value: 3
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1123930169616690335, guid: 24ea24b7cadf02f42849dab7c20b207b, type: 3}
       propertyPath: m_IsActive

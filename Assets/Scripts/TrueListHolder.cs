@@ -10,6 +10,9 @@ public class TrueListHolder : MonoBehaviour
     public List<Sprite> trueSprites = new List<Sprite>();
     public List<AudioClip> trueVA = new List<AudioClip>();
     public int trueDifficulty;
+    public bool trueEffectsOn;
+    public bool voiceOn;
+    public bool progressOn;
 
     public bool firstTime;
     public int trueModeInt;

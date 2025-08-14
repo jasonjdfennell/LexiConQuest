@@ -13,9 +13,7 @@ public class HighManager : MonoBehaviour
     public GameObject currentDifficultyText;
 
     public GameObject mainMenu;
-    public GameObject levelMenu;
-    public GameObject difficultyMenu;
-    public GameObject creditsScreen;
+    public GameObject[] menus;
     public GameObject winScreen;
     public GameObject winScreenMedal;
     public GameObject loseScreen;
@@ -104,7 +102,6 @@ public class HighManager : MonoBehaviour
         voiceClipArray[2] = animalVA;
         SpritesArray[0] = alphabetSprites;
         SpritesArray[1] = backwardsAlphabetSprites;
-        //REMEMBER TO ADD ONE TO THE HIGH SCORE LIST IN TRUELISTHOLDER.
 
         //This is how I save the player's preferences.
         GameObject returningListHolder = GameObject.Find("TrueListHolder");
@@ -171,12 +168,15 @@ public class HighManager : MonoBehaviour
 
     public void ChangeMode(int modeIndex)
     {
-        Debug.Log(modeNames[modeIndex]);
         trueListHolder.GetComponent<TrueListHolder>().trueMode = modeNames[modeIndex];
         trueListHolder.GetComponent<TrueListHolder>().trueModeInt = modeIndex;
         trueListHolder.GetComponent<TrueListHolder>().trueList = vocabListsArray[modeIndex];
         trueListHolder.GetComponent<TrueListHolder>().trueEmojis = vocabEmojisArray[modeIndex];
-        if(modeIndex<2)
+        if (modeIndex < 3)
+        {
+            trueListHolder.GetComponent<TrueListHolder>().trueVA = voiceClipArray[modeIndex];
+        }
+        if (modeIndex < 2)
         {
             trueListHolder.GetComponent<TrueListHolder>().trueSprites = SpritesArray[modeIndex];
         }
@@ -197,11 +197,10 @@ public class HighManager : MonoBehaviour
 
     public void MainMenu()
     {
-        levelMenu.SetActive(false);
-        difficultyMenu.SetActive(false);
-        creditsScreen.SetActive(false);
-        winScreen.SetActive(false);
-        loseScreen.SetActive(false);
+        foreach (GameObject menu in menus)
+        {
+            menu.SetActive(false);
+        }
         mainMenu.SetActive(true);
         sfxPlayer.Play();
         if(musicPlayer.clip != titleOST)
@@ -211,29 +210,18 @@ public class HighManager : MonoBehaviour
         }
     }
 
-    public void LevelSelect()
+    public void OpenMenu(int menuIndex)
     {
         mainMenu.SetActive(false);
-        levelMenu.SetActive(true);
-        for (int i = 0; i < levelButtons.Count; i++)
+        menus[menuIndex].SetActive(true);
+        if(menuIndex == 0)
         {
-            List<string> emojiSelect = vocabEmojisArray[i];
-            levelButtons[i].transform.GetChild(2).GetComponent<TextMeshProUGUI>().text = emojiSelect[Random.Range(0, emojiSelect.Count)];
+            for (int i = 0; i < levelButtons.Count; i++)
+            {
+                List<string> emojiSelect = vocabEmojisArray[i];
+                levelButtons[i].transform.GetChild(2).GetComponent<TextMeshProUGUI>().text = emojiSelect[Random.Range(0, emojiSelect.Count)];
+            }
         }
-        sfxPlayer.Play();
-    }
-
-    public void DifficultySelect()
-    {
-        mainMenu.SetActive(false);
-        difficultyMenu.SetActive(true);
-        sfxPlayer.Play();
-    }
-
-    public void CreditsScreen()
-    {
-        mainMenu.SetActive(false);
-        creditsScreen.SetActive(true);
         sfxPlayer.Play();
     }
 

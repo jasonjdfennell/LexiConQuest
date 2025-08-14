@@ -29,13 +29,12 @@ public class HeadControls : MonoBehaviour
 
     public GameObject progressUI;
     public GameObject scoreUI;
-    public GameObject letterStreakUI;
-    public GameObject wordStreakUI;
     public List<GameObject> strikeUI = new List<GameObject>();
 
+    private bool effectsOn;
     public GameObject gameplayEffect;
     public GameObject UIEffect;
-    public GameObject stopwatchHand;
+    public GameObject stopwatch;
     [SerializeField] private string[] compliments;
 
     private int tempScore;
@@ -54,7 +53,7 @@ public class HeadControls : MonoBehaviour
         //logging the game mode for future reference
         gameModeInt = trueListHolder.GetComponent<TrueListHolder>().trueModeInt;
         difficulty = trueListHolder.GetComponent<TrueListHolder>().trueDifficulty;
-        stopwatchHand.GetComponent<StopwatchHand>().difficulty = difficulty;
+        stopwatch.GetComponent<StopwatchHand>().difficulty = difficulty;
         //setting up the strikes system
         for (int x = 3; x > 4 - difficulty; x--)
         {
@@ -67,13 +66,6 @@ public class HeadControls : MonoBehaviour
         //not sure if there's a way to do this but right now I just set in manually for simplicity's sake
         //emojiMaterial = GetComponent<TextMeshPro>().material;
 
-        //making the trail list
-        for (int i = 0; i < 3; i++)
-        {
-            trailPositions.Add(transform.GetChild(i + 3).transform.position);
-            trailRotations.Add(transform.GetChild(i + 3).transform.rotation);
-        }
-
         //Setting up the sprites for the alphabet levels
         spriteRenderer = transform.GetChild(6).GetComponent<SpriteRenderer>();
         if (gameModeInt < 2)
@@ -82,14 +74,24 @@ public class HeadControls : MonoBehaviour
             transform.GetChild(6).gameObject.SetActive(true);            
             GetComponent<TextMeshPro>().enabled = false;
         }
+
+        //implementing options
+        effectsOn = trueListHolder.GetComponent<TrueListHolder>().trueEffectsOn;
+        voicePlayer.enabled = trueListHolder.GetComponent<TrueListHolder>().voiceOn;
+        progressUI.SetActive(trueListHolder.GetComponent<TrueListHolder>().progressOn);
+
+        //making the trail list
+        for (int i = 0; i < 3; i++)
+        {
+            trailPositions.Add(transform.GetChild(i + 3).transform.position);
+            trailRotations.Add(transform.GetChild(i + 3).transform.rotation);
+        }
+
         strikes = 4-difficulty;
         letterStreak = 0;
         wordStreak = 0;
         medalWordStreak = -1;
         wordStreakMaintained = false;
-        //letterStreakUI.GetComponent<TextMeshProUGUI>().text = "Letter Streak: " + letterStreak;
-        //wordStreakUI.GetComponent<TextMeshProUGUI>().text = "Word Streak: " + wordStreak;
-        scoreUI.GetComponent<TextMeshProUGUI>().text = "Score: " + totalScore;
         //choosing the word and the sprite to go with it
         NewVocab();
     }
@@ -99,7 +101,8 @@ public class HeadControls : MonoBehaviour
         if(wordStreakMaintained == true)
         {
             wordStreak = wordStreak + 1;
-            wordStreakUI.GetComponent<TextMeshProUGUI>().text = "Word Streak: " + wordStreak;
+            //WORD STREAK EFFECT
+            NewEffect(true, new Vector2(-670, 110), 0, 0.75f, "Word Streak: " + wordStreak);
         }
         medalWordStreak = medalWordStreak + 1;
         //resetting the word streak
@@ -116,7 +119,7 @@ public class HeadControls : MonoBehaviour
         currentWord = trueListHolder.GetComponent<TrueListHolder>().trueList[randomVocab];
         GetComponent<TextMeshPro>().text = trueListHolder.GetComponent<TrueListHolder>().trueEmojis[randomVocab];
         //THIS IS TO TEST OUT THE VOICE ACTING SYSTEM - RIGHT NOW IT ONLY WORKS WITH THE ANIMAL LEVEL
-        if(gameModeInt == 2)
+        if(gameModeInt < 3)
         {
             voicePlayer.clip = trueListHolder.GetComponent<TrueListHolder>().trueVA[randomVocab];
             voicePlayer.Play();
@@ -182,9 +185,15 @@ public class HeadControls : MonoBehaviour
         if (transform.eulerAngles.z - direction == 90 * randomChild || transform.eulerAngles.z - direction == -270 * randomChild)
         {
             progressUI.GetComponent<TextMeshProUGUI>().text = progressUI.GetComponent<TextMeshProUGUI>().text + currentWord[currentLetter].ToString();
-            currentLetter = currentLetter + 1;
             sfxPlayer.clip = correctSFX;
             sfxPlayer.Play();
+            //ALPHABET COMPLIMENT VOICE CLIPS
+            if (gameModeInt < 2)
+            {
+                voicePlayer.clip = trueListHolder.GetComponent<TrueListHolder>().trueVA[0];
+                voicePlayer.Play();
+                trueListHolder.GetComponent<TrueListHolder>().trueVA.RemoveAt(0);
+            }
 
             //CHANGING THE SPRITE FOR THE ALPHABET LEVELS
             if (gameModeInt < 2)
@@ -193,7 +202,7 @@ public class HeadControls : MonoBehaviour
             }
 
             //INCREASE THE SCORE
-            int timeBonus = Mathf.RoundToInt((stopwatchHand.transform.eulerAngles.z / 36) * Mathf.Pow(10, difficulty));
+            int timeBonus = Mathf.RoundToInt((stopwatch.GetComponent<StopwatchHand>().handAngle / 36) * Mathf.Pow(10, difficulty));
             int letterStreakBonus = letterStreak * Mathf.RoundToInt(Mathf.Pow(10, difficulty-1));
             int medalTime = 135 + (45 * difficulty);
             int medalBonus = Mathf.RoundToInt((medalTime / 36) * Mathf.Pow(10, difficulty));
@@ -206,18 +215,20 @@ public class HeadControls : MonoBehaviour
             //letterStreakUI.GetComponent<TextMeshProUGUI>().text = "Letter Streak: " + letterStreak;
 
             //TIME BONUS EFFECT
-            NewEffect(true, new Vector2(stopwatchHand.transform.position.x + 100, stopwatchHand.transform.position.y), 0, new Vector2(1, 1), "Time Bonus +" + timeBonus);
+            //NewEffect(true, new Vector2(stopwatch.transform.position.x + 100, stopwatch.transform.position.y), 0, new Vector2(1, 1), "Time Bonus +" + timeBonus);
+            NewEffect(true, new Vector2(-540, -350), 0, 1f, "Time Bonus +" + timeBonus);
             //LETTER STREAK EFFECT
-            NewEffect(true, new Vector2(890, 17), 0, new Vector2(0.5f, 0.5f), "Letter Streak: " + letterStreak);
+            NewEffect(true, new Vector2(670, 110), 0, 0.75f, "Letter Streak: " + letterStreak);
             //DIAGONAL COMPLIMENT EFFECT
             if (gameModeInt < 2)
             {
-                NewEffect(false, transform.position, direction + Random.Range(-45, 45), new Vector2(1, 1), compliments[currentLetter-1 + (gameModeInt*26)]);
+                NewEffect(false, transform.position, direction + Random.Range(-45, 45), 1f, compliments[currentLetter + (gameModeInt*26)]);
             }
             else
             {
-                NewEffect(false, transform.position, direction + Random.Range(-45, 45), new Vector2(1, 1), compliments[Random.Range(0, compliments.Length)]);
+                NewEffect(false, transform.position, direction + Random.Range(-45, 45), 1f, compliments[Random.Range(0, compliments.Length)]);
             }
+            currentLetter = currentLetter + 1;
         }
         //IF THE WRONG LETTER WAS CHOSEN
         else
@@ -231,10 +242,8 @@ public class HeadControls : MonoBehaviour
             //REMOVE A STRIKE AND RESET THE LETTER STREAK & WORD STREAK
             strikeUI[strikes-1].SetActive(false);
             letterStreak = 0;
-            letterStreakUI.GetComponent<TextMeshProUGUI>().text = "Letter Streak: " + letterStreak;
             wordStreak = 0;
             wordStreakMaintained = false;
-            wordStreakUI.GetComponent<TextMeshProUGUI>().text = "Word Streak: " + wordStreak;
             strikes = strikes - 1;
             //IF THAT WAS THE FINAL STRIKE
             if (strikes <= 0)
@@ -264,7 +273,7 @@ public class HeadControls : MonoBehaviour
     void ShuffleLetters()
     {
         //reset the stopwatch
-        stopwatchHand.transform.localEulerAngles = new Vector3(0, 0, 359.9f);
+        StartCoroutine(stopwatch.GetComponent<StopwatchHand>().Click());
         //copying the word to a temp list
         List<char> letters = new List<char>();
         //splitting up the current word into a list of characters
@@ -340,25 +349,28 @@ public class HeadControls : MonoBehaviour
         transform.position = transform.position + new Vector3(xMove * -stepLength * 0.25f, yMove * -stepLength * 0.25f, 0);
     }
 
-    private void NewEffect(bool UI, Vector2 effectPosition, int effectDirection, Vector2 effectScale, string text)
+    private void NewEffect(bool UI, Vector2 effectPosition, int effectDirection, float effectScale, string text)
     {
-        GameObject tempEffect;
-        if(UI == true)
+        if(effectsOn == true)
         {
-            tempEffect = Instantiate(UIEffect);
-            tempEffect.GetComponent<TextMeshProUGUI>().text = text;
-            //setting the canvas as the parent so that the UI effect shows up
-            tempEffect.transform.SetParent(UIEffect.transform.parent, false);
+            GameObject tempEffect;
+            if (UI == true)
+            {
+                tempEffect = Instantiate(UIEffect);
+                tempEffect.GetComponent<TextMeshProUGUI>().text = text;
+                //setting the canvas as the parent so that the UI effect shows up
+                tempEffect.transform.SetParent(UIEffect.transform.parent, false);
+            }
+            else
+            {
+                tempEffect = Instantiate(gameplayEffect);
+                tempEffect.GetComponent<TextMeshPro>().text = text;
+            }
+            tempEffect.SetActive(true);
+            tempEffect.transform.localPosition = effectPosition;
+            tempEffect.transform.localEulerAngles = new Vector3(0, 0, effectDirection);
+            tempEffect.transform.localScale = new Vector2(effectScale, effectScale);
         }
-        else
-        {
-            tempEffect = Instantiate(gameplayEffect);
-            tempEffect.GetComponent<TextMeshPro>().text = text;
-        }
-        tempEffect.SetActive(true);
-        tempEffect.transform.position = effectPosition;
-        tempEffect.transform.localEulerAngles = new Vector3(0, 0, effectDirection);
-        tempEffect.transform.localScale = effectScale;
     }
 
     public void QuitLevel(bool backButton)
